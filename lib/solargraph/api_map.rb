@@ -106,8 +106,8 @@ module Solargraph
         reqs.delete_if do |r|
           result = false
           bundle.workspace.require_paths.each do |l|
-            pn = Pathname.new(bundle.workspace.directory).join(l, "#{r}.rb")
-            if new_map_hash.keys.include?(pn.to_s)
+            pn = Pathname.new(l).join("#{r}.rb")
+            if new_map_hash.key?(pn.to_s)
               local_path_hash[r] = pn.to_s
               result = true
               break

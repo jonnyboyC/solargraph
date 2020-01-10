@@ -267,7 +267,7 @@ describe Solargraph::ApiMap do
   end
 
   it "catalogs changes" do
-    workspace = Solargraph::Workspace.new
+    workspace = Solargraph::Workspace.new 'workspace'
     s1 = Solargraph::Source.load_string('class Foo; end')
     @api_map.catalog(Solargraph::Bundle.new(workspace: workspace, opened: [s1]))
     expect(@api_map.get_path_pins('Foo')).not_to be_empty
@@ -372,12 +372,13 @@ describe Solargraph::ApiMap do
     api_map = Solargraph::ApiMap.new
     source1 = Solargraph::Source.load_string(%(
       class Foo; end
-    ), 'lib/foo.rb')
+    ), 'workspace/lib/foo.rb')
     source2 = Solargraph::Source.load_string(%(
       require 'foo'
       require 'invalid'
-    ), 'app.rb')
-    bundle = Solargraph::Bundle.new(opened: [source1, source2])
+    ), 'workspace/app.rb')
+    workspace = Solargraph::Workspace.new 'workspace'
+    bundle = Solargraph::Bundle.new(workspace: workspace, opened: [source1, source2])
     api_map.catalog bundle
     expect(api_map.unresolved_requires).to eq(['invalid'])
   end
@@ -466,14 +467,15 @@ describe Solargraph::ApiMap do
         # @return [String]
         def foo; end
       end
-    ), 'source1.rb')
+    ), 'workspace/source1.rb')
     source2 = Solargraph::Source.load_string(%(
       class Sub < Sup
         alias bar foo
       end
-    ), 'source2.rb')
+    ), 'workspace/source2.rb')
     api_map = Solargraph::ApiMap.new
-    bundle = Solargraph::Bundle.new(opened: [source1, source2])
+    workspace = Solargraph::Workspace.new 'workspace'
+    bundle = Solargraph::Bundle.new(workspace: workspace, opened: [source1, source2])
     api_map.catalog bundle
     pin = api_map.get_path_pins('Sub#bar').first
     expect(pin).not_to be_nil
